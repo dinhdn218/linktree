@@ -27,6 +27,16 @@ export default function Home() {
   return (
     <main className="py-8 px-4 min-h-screen bg-gradient-to-b from-indigo-300 via-green-300 to-teal-300">
       <div className="max-w-2xl mx-auto my-8 relative">
+        <div className="absolute bottom-full left-full">
+          <Button
+            variant={"secondary"}
+            size={"icon"}
+            className="rounded-full absolute top-0 right-0 cursor-pointer"
+          >
+            <DotsHorizontalIcon />
+          </Button>
+        </div>
+
         <Avatar className="h-24 w-24 mx-auto">
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback />
