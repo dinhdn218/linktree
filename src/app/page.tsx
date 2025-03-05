@@ -1,20 +1,21 @@
+"use client";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 const links: {
   title: string;
   url: string;
 }[] = [
+  { title: "Portfolio", url: "https://dnd-portfolio.vercel.app/" },
   { title: "Github", url: "https://github.com/dinhdn218" },
   { title: "Linkedin", url: "https://www.linkedin.com/in/dinhdn218/" },
   { title: "Facebook", url: "https://www.facebook.com/dinhdn218/" },
@@ -24,6 +25,16 @@ const links: {
 ];
 
 export default function Home() {
+  const curHref: string =
+    typeof window !== "undefined" ? window.location.href : "";
+  const [modal, setModal] = useState({
+    open: false,
+    link: {
+      title: "",
+      url: "",
+    },
+  });
+
   return (
     <main className="py-8 px-4 min-h-screen bg-gradient-to-b from-indigo-300 via-green-300 to-teal-300">
       <div className="max-w-2xl mx-auto my-8 relative">
@@ -32,6 +43,12 @@ export default function Home() {
             variant={"secondary"}
             size={"icon"}
             className="rounded-full absolute top-0 right-0 cursor-pointer"
+            onClick={() =>
+              setModal({
+                open: true,
+                link: { title: "Đinh Ngọc Định", url: curHref },
+              })
+            }
           >
             <DotsHorizontalIcon />
           </Button>
@@ -65,6 +82,12 @@ export default function Home() {
                     variant={"ghost"}
                     size={"icon"}
                     className="rounded-full absolute top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() =>
+                      setModal({
+                        open: true,
+                        link,
+                      })
+                    }
                   >
                     <DotsHorizontalIcon />
                   </Button>
@@ -74,15 +97,30 @@ export default function Home() {
           ))}
         </section>
       </div>
-      <Dialog>
-        <DialogTrigger>Open</DialogTrigger>
-        <DialogContent>
+      <Dialog
+        open={modal.open}
+        onOpenChange={(open: boolean) => setModal({ ...modal, open })}
+      >
+        <DialogContent
+          className="sm:max-w-sm md:max-w-lg"
+          aria-describedby={undefined}
+        >
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
+            <DialogTitle className="text-center text-base md:text-lg font-bold">
+              Chia sẻ Link
+            </DialogTitle>
+            <a
+              href={modal.link.url}
+              target="_blank"
+              className="flex flex-col gap-1 items-center py-4 px-5 w-full sm:max-w-80 mx-auto bg-stone-200 rounded-3xl my-3"
+            >
+              <h3 className="text-lg md:text-xl font-bold leading-snug">
+                {modal.link.title}
+              </h3>
+              <p className="text-[13px] text-center whitespace-nowrap w-36 text-ellipsis overflow-hidden">
+                {modal.link.url}
+              </p>
+            </a>
           </DialogHeader>
         </DialogContent>
       </Dialog>
