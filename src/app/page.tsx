@@ -8,8 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { CheckIcon, CopyIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Fragment, useState } from "react";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  LinkedinIcon,
+  LinkedinShareButton,
+  TwitterShareButton,
+  XIcon,
+} from "react-share";
 
 const links: {
   title: string;
@@ -27,32 +35,34 @@ const links: {
 export default function Home() {
   const curHref: string =
     typeof window !== "undefined" ? window.location.href : "";
-  const [modal, setModal] = useState({
+  const [modal, setModal] = useState<{
+    open: boolean;
+    link: { title: string; url: string };
+  }>({
     open: false,
     link: {
       title: "",
       url: "",
     },
   });
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   return (
     <main className="py-8 px-4 min-h-screen bg-gradient-to-b from-indigo-300 via-green-300 to-teal-300">
       <div className="max-w-2xl mx-auto my-8 relative">
-        <div className="absolute bottom-full left-full">
-          <Button
-            variant={"secondary"}
-            size={"icon"}
-            className="rounded-full absolute top-0 right-0 cursor-pointer"
-            onClick={() =>
-              setModal({
-                open: true,
-                link: { title: "Đinh Ngọc Định", url: curHref },
-              })
-            }
-          >
-            <DotsHorizontalIcon />
-          </Button>
-        </div>
+        <Button
+          variant={"secondary"}
+          size={"icon"}
+          className="rounded-full absolute top-0 md:left-full right-0 cursor-pointer"
+          onClick={() =>
+            setModal({
+              open: true,
+              link: { title: "Đinh Ngọc Định", url: curHref },
+            })
+          }
+        >
+          <DotsHorizontalIcon />
+        </Button>
 
         <Avatar className="h-24 w-24 mx-auto">
           <AvatarImage src="https://github.com/shadcn.png" />
@@ -102,25 +112,57 @@ export default function Home() {
         onOpenChange={(open: boolean) => setModal({ ...modal, open })}
       >
         <DialogContent
-          className="sm:max-w-sm md:max-w-lg"
+          className="max-w-full md:max-w-lg absolute top-full -translate-y-full sm:top-1/2 sm:-translate-y-1/2 rounded-none sm:rounded-lg"
           aria-describedby={undefined}
         >
           <DialogHeader>
             <DialogTitle className="text-center text-base md:text-lg font-bold">
               Chia sẻ Link
             </DialogTitle>
-            <a
-              href={modal.link.url}
-              target="_blank"
-              className="flex flex-col gap-1 items-center py-4 px-5 w-full sm:max-w-80 mx-auto bg-stone-200 rounded-3xl my-3"
-            >
-              <h3 className="text-lg md:text-xl font-bold leading-snug">
-                {modal.link.title}
-              </h3>
-              <p className="text-[13px] text-center whitespace-nowrap w-36 text-ellipsis overflow-hidden">
-                {modal.link.url}
-              </p>
-            </a>
+            <div>
+              <div className="flex items-center gap-2 md:gap-4 relative">
+                <a
+                  href={modal.link.url}
+                  target="_blank"
+                  className="flex flex-col gap-1 items-center py-4 px-5 w-full md:max-w-80 mx-auto bg-stone-200 rounded-3xl my-3"
+                >
+                  <h3 className="text-lg md:text-xl font-bold leading-snug">
+                    {modal.link.title}
+                  </h3>
+                  <p className="text-[13px] text-center whitespace-nowrap w-36 text-ellipsis overflow-hidden">
+                    {modal.link.url}
+                  </p>
+                </a>
+                <div
+                  onClick={() => {
+                    setCopiedLink(true);
+                    setTimeout(() => {
+                      setCopiedLink(false);
+                    }, 2000);
+                    navigator.clipboard.writeText(modal.link.url);
+                  }}
+                  className="rounded-full w-8 h-8 md:w-10 md:h-10 absolute top-1/2 -translate-y-1/2 right-[10px] cursor-pointer bg-stone-200 flex items-center justify-center p-2 md:p-2.5"
+                >
+                  {copiedLink ? (
+                    <CheckIcon className="w-full h-full" />
+                  ) : (
+                    <CopyIcon className="w-full h-full" />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-4 md:gap-8 justify-center mt-6 mb-3 items-start">
+                <TwitterShareButton url={modal.link.url}>
+                  <XIcon className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden" />
+                </TwitterShareButton>
+                <FacebookShareButton url={modal.link.url}>
+                  <FacebookIcon className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden" />
+                </FacebookShareButton>
+                <LinkedinShareButton url={modal.link.url}>
+                  <LinkedinIcon className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden" />
+                </LinkedinShareButton>
+              </div>
+            </div>
           </DialogHeader>
         </DialogContent>
       </Dialog>
