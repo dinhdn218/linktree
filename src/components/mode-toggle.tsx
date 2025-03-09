@@ -19,6 +19,7 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          aria-label="Toggle-theme"
           variant="outline"
           size="icon"
           className="rounded-full md:rounded-md fixed z-10"

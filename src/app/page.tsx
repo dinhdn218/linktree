@@ -1,28 +1,60 @@
-import HomePage from "@/modules/HomePage";
+import HomePage, { LinkRecord, ConfigRecord } from "@/modules/HomePage";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Linktree Đinh Ngọc Định",
-  description: "Linktree của Đinh Ngọc Định",
-  metadataBase: new URL("http://localhost:3000"),
-  openGraph: {
-    title: "Linktree Đinh Ngọc Định",
-    description: "Linktree của Đinh Ngọc Định",
-    images: {
-      url: "/opengraph-image", // Points to the API route
-      width: 1200,
-      height: 630,
-      alt: "My Open Graph Image",
-    },
-    type: "website",
-    url: "https://dnd-portfolio.vercel.app/",
-  },
+const getLinks = async () => {
+  const res = await fetch(
+    `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/links?sort[0][field]=id&sort[0][direction]=asc`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
+      },
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  const data = await res.json();
+  return data.records;
 };
 
-export default function Home() {
+const getConfigs = async () => {
+  const res = await fetch(
+    `https://api.airtable.com/v0/${process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID}/configs?sort[0][field]=id&sort[0][direction]=asc`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_API_KEY}`,
+      },
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  const data = await res.json();
+  return data.records;
+};
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const data = await getConfigs();
+  const title = data?.records?.find(
+    (r: ConfigRecord) => r.fields.title === "site_title"
+  )?.fields.value;
+  const description = data?.records?.find(
+    (r: ConfigRecord) => r.fields.title === "site_description"
+  )?.fields.value;
+  return {
+    title: title || "Đinh Ngọc Định",
+    description: description || "I'm a Frontend Engineer",
+  };
+};
+
+export default async function Home() {
+  const linkRecords: LinkRecord[] = await getLinks();
+  const configRecords: ConfigRecord[] = await getConfigs();
   return (
     <>
-      <HomePage />
+      <HomePage linkRecords={linkRecords} configRecords={configRecords} />
     </>
   );
 }

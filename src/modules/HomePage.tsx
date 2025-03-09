@@ -1,7 +1,7 @@
 "use client";
 
 import { ModeToggle } from "@/components/mode-toggle";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,20 +22,37 @@ import {
   XIcon,
 } from "react-share";
 
-const links: {
+export type Link = {
   title: string;
   url: string;
-}[] = [
-  { title: "Portfolio", url: "https://dnd-portfolio.vercel.app/" },
-  { title: "Github", url: "https://github.com/dinhdn218" },
-  { title: "Linkedin", url: "https://www.linkedin.com/in/dinhdn218/" },
-  { title: "Facebook", url: "https://www.facebook.com/dinhdn218/" },
-  { title: "Instagram", url: "https://www.instagram.com/d.ngocdinh/" },
-  { title: "Tiktok", url: "https://www.tiktok.com/@dinhdn218" },
-  { title: "Email", url: "mailto:dinhdn218@gmail.com" },
-];
+  id: number;
+};
 
-export default function HomePage() {
+export type Config = {
+  title: string;
+  value: string;
+  id: number;
+};
+
+export type LinkRecord = {
+  id: string;
+  createdTime: string;
+  fields: Link;
+};
+
+export type ConfigRecord = {
+  id: string;
+  createdTime: string;
+  fields: Config;
+};
+
+export default function HomePage({
+  linkRecords,
+  configRecords,
+}: {
+  linkRecords: LinkRecord[];
+  configRecords: ConfigRecord[];
+}) {
   const curHref: string =
     typeof window !== "undefined" ? window.location.href : "";
   const [modal, setModal] = useState<{
@@ -55,6 +72,7 @@ export default function HomePage() {
       <ModeToggle />
       <div className="max-w-2xl p-4 md:p-0 mx-auto md:my-8 absolute top-4 right-0 left-0">
         <Button
+          aria-label="share-this-site"
           variant={"secondary"}
           size={"icon"}
           className="rounded-full absolute top-0 md:left-full right-4 cursor-pointer"
@@ -68,19 +86,43 @@ export default function HomePage() {
           <DotsHorizontalIcon />
         </Button>
 
-        <Avatar className="h-24 w-24 mx-auto">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback />
+        <Avatar className="h-30 w-30 md:h-40 md:w-40 mx-auto object-cover">
+          <Image
+            src={
+              configRecords?.find(
+                (r: ConfigRecord) => r.fields.title === "main_avatar"
+              )?.fields?.value || "https://github.com/shadcn.png"
+            }
+            priority
+            fill
+            alt={""}
+            style={{
+              objectFit: "cover",
+            }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
         </Avatar>
 
         <section className="text-center mt-5">
-          <h1 className="text-xl font-semibold">Đinh Ngọc Định</h1>
-          <p>I&apos;m a Frontend Engineer</p>
+          <h1 className="text-xl font-semibold">
+            {
+              configRecords?.find(
+                (r: ConfigRecord) => r.fields.title === "main_title"
+              )?.fields?.value
+            }
+          </h1>
+          <p>
+            {
+              configRecords?.find(
+                (r: ConfigRecord) => r.fields.title === "main_description"
+              )?.fields?.value
+            }
+          </p>
         </section>
 
         <section className="flex flex-col w-full mx-auto gap-4 mt-8">
-          {links.map((link: { title: string; url: string }) => (
-            <Fragment key={link.url}>
+          {linkRecords.map((record: LinkRecord, index: number) => (
+            <Fragment key={index}>
               <motion.div
                 whileHover={{
                   scale: 1.015,
@@ -90,23 +132,24 @@ export default function HomePage() {
                 className="rounded-full overflow-hidden shadow-md relative"
               >
                 <a
-                  href={link.url}
+                  href={record.fields.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-5 px-12 text-center bg-white text-neutral-950 block dark:bg-cyan-950 dark:text-white"
                 >
-                  <span className="leading-snug">{link.title}</span>
+                  <span className="leading-snug">{record.fields.title}</span>
                 </a>
 
                 <div className="absolute top-0 right-0 h-full aspect-square">
                   <Button
+                    aria-label="share-social"
                     variant={"ghost"}
                     size={"icon"}
                     className="rounded-full absolute top-1/2 transform -translate-y-1/2 cursor-pointer"
                     onClick={() =>
                       setModal({
                         open: true,
-                        link,
+                        link: record.fields,
                       })
                     }
                   >
@@ -139,7 +182,11 @@ export default function HomePage() {
                       alt="og-image"
                       className="rounded-xl"
                       fill
-                      objectFit="cover"
+                      style={{
+                        objectFit: "cover",
+                      }}
+                      priority
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 ) : (
